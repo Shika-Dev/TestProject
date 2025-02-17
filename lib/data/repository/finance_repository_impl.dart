@@ -15,30 +15,47 @@ class FinanceRepository extends AbsFinanceRepository {
       [String? date, String? category]) async {
     try {
       String resultJson = _spDatasource.getTransactions();
-      List<TransactionModel> result = jsonDecode(resultJson);
+      List<TransactionModel> result = resultModelFromJson(resultJson);
       if (date != null) {
-        result.removeWhere((element) => element.dateCreated == date);
+        result.removeWhere((element) => element.dateCreated != date);
       }
       if (category != null) {
-        result.removeWhere((element) => element.category == category);
+        result.removeWhere((element) => element.category != category);
       }
       return result;
     } catch (e) {
-      rethrow;
+      throw e;
     }
   }
 
   @override
   Future<bool> addTransaction(TransactionModel model) async {
     try {
-      return true;
-    } on Exception catch (e) {
-      // TODO
+      String resultJson = _spDatasource.getTransactions();
+      List<TransactionModel> result = [];
+      if(resultJson != ""){
+        result = resultModelFromJson(resultJson);
+      }
+       
+      result.add(model);
+
+      return _spDatasource.addTransactions(jsonEncode(result));
+    } catch (e) {
+      throw e;
     }
   }
 
   @override
-  Future<SummaryModel> getSummery() async {
-    return SummaryModel(saldo: 0, total_expense: 0, total_income: 0);
+  Future<SummaryModel> getSummary() async {
+    String resultJson = _spDatasource.getTransactions();
+    List<TransactionModel> result = resultModelFromJson(resultJson);
+    num saldo = result.fold(0, (prevVal, element) {
+      if(element.category == "Income"){
+        return prevVal + element.amount;
+      } else return prevVal - element.amount;
+    });
+    num total_expense = result.fold(0, (prevVal, element) => element.category == "Income" ? prevVal : prevVal + element.amount);
+    num total_income = result.fold(0, (prevVal, element) => element.category == "Expense" ? prevVal : prevVal + element.amount);
+    return SummaryModel(saldo: saldo, total_expense: total_expense, total_income: total_income);
   }
 }

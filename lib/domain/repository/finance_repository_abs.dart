@@ -5,5 +5,5 @@ abstract class AbsFinanceRepository {
   Future<List<TransactionModel>> getAllTransaction(
       [String? date, String? category]);
   Future<bool> addTransaction(TransactionModel model);
-  Future<SummaryModel> getSummery();
+  Future<SummaryModel> getSummary();
 }

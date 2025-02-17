@@ -11,13 +11,13 @@ class FinanceInteractor extends FinanceUsecase {
   @override
   Future<List<TransactionModel>> getAllTransaction(
           [String? date, String? category]) async =>
-      await _financeRepository.getAllTransaction();
+      await _financeRepository.getAllTransaction(date, category);
 
   @override
   Future<bool> addTransaction(TransactionModel model) async =>
       await _financeRepository.addTransaction(model);
 
   @override
-  Future<SummaryModel> getSummery() async =>
-      await _financeRepository.getSummery();
+  Future<SummaryModel> getSummary() async =>
+      await _financeRepository.getSummary();
 }
